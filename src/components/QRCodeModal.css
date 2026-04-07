@@ -1,0 +1,82 @@
+.qr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn var(--t-fast);
+}
+
+.qr-modal-content {
+  background: var(--bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 340px;
+  position: relative;
+  box-shadow: var(--shadow-card);
+  animation: slideUp var(--t-base);
+  text-align: center;
+}
+
+.qr-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-2);
+  color: var(--text-secondary);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+
+.qr-close-btn:hover {
+  background: var(--glass-hover);
+  color: var(--text-primary);
+}
+
+.qr-header {
+  margin-bottom: 24px;
+}
+
+.qr-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.qr-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.qr-box {
+  background: #fff;
+  padding: 16px;
+  border-radius: var(--r-md);
+  display: inline-block;
+  margin-bottom: 24px;
+  border: 4px solid var(--accent-glow);
+}
+
+.qr-footer code {
+  background: var(--bg-2);
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  color: var(--text-muted);
+}

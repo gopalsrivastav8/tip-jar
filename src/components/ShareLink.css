@@ -1,0 +1,67 @@
+.share-link-wrapper {
+  margin-top: 12px;
+}
+
+.share-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.share-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-2);
+  border: 1px dashed var(--glass-border);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+
+.share-box:hover {
+  background: var(--glass-hover);
+  border-color: var(--accent);
+}
+
+.share-url {
+  font-size: 13px;
+  color: var(--text-primary);
+  opacity: 0.8;
+  font-family: monospace;
+}
+
+.share-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: color var(--t-fast);
+}
+
+.action-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--glass-border);
+}
+
+.share-box:hover .action-btn {
+  color: var(--text-secondary);
+}
+
+.share-box:hover .action-btn:hover {
+  color: var(--text-primary);
+}

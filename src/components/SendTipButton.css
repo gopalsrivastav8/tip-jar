@@ -1,0 +1,72 @@
+.send-tip-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: var(--shadow-btn);
+  transition: all var(--t-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.send-tip-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+
+.send-tip-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 111, 255, 0.5);
+}
+
+.send-tip-btn:hover:not(:disabled)::after {
+  opacity: 1;
+}
+
+.send-tip-btn:active:not(:disabled) {
+  transform: scale(0.97) translateY(2px);
+  box-shadow: 0 4px 10px rgba(124, 111, 255, 0.3);
+  transition: all 0.1s;
+}
+
+.send-tip-btn:disabled {
+  background: var(--bg-2);
+  color: var(--text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+  border: 1px solid var(--glass-border);
+}
+
+/* Spinner */
+.spinner-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+}
+
+.spinner .path {
+  stroke: rgba(255, 255, 255, 0.8);
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes dash {
+  0% { stroke-dasharray: 1, 150; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 90, 150; stroke-dashoffset: -35; }
+  100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
+}

@@ -1,0 +1,84 @@
+.custom-wallet-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--r-md);
+  font-size: 15px;
+  font-weight: 600;
+  transition: all var(--t-base);
+  border: 1px solid transparent;
+}
+
+.custom-wallet-btn.connect-mode {
+  background: linear-gradient(110deg, var(--bg-2) 40%, rgba(255,255,255,0.08) 50%, var(--bg-2) 60%);
+  color: var(--text-primary);
+  border-color: var(--glass-border);
+  background-size: 200% auto;
+  --bg-size: 200%;
+  animation: continuousShimmer 3s linear infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-wallet-btn.connect-mode:hover {
+  background-size: 100% auto;
+  animation: none;
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.custom-wallet-btn.connected-mode {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: var(--glass-border);
+  justify-content: space-between;
+  padding: 10px 16px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--success);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--success);
+  animation: dot-pulse 2s infinite;
+}
+
+.address {
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  transition: all var(--t-fast);
+}
+
+.address:hover {
+  background: var(--glass);
+  color: var(--text-primary);
+}
+
+.disconnect-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--r-sm);
+  transition: all var(--t-fast);
+}
+
+.disconnect-btn:hover {
+  color: var(--error);
+  background: var(--error-bg);
+}

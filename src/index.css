@@ -1,26 +1,189 @@
-* {
+/* ─── Reset & Base ─────────────────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+:root {
+  /* Colors */
+  --bg:             #060612;
+  --bg-2:           #0d0d1f;
+  --glass:          rgba(255, 255, 255, 0.06);
+  --glass-border:   rgba(255, 255, 255, 0.15);
+  --glass-hover:    rgba(255, 255, 255, 0.1);
+
+  /* Text */
+  --text-primary:   #ffffff;
+  --text-secondary: #c2c2d6;
+  --text-muted:     #8a8aab;
+
+  /* Accent — violet/indigo */
+  --accent:         #7c6fff;
+  --accent-2:       #5e5ce6;
+  --accent-glow:    rgba(124, 111, 255, 0.3);
+  --accent-chip:    rgba(124, 111, 255, 0.15);
+
+  /* Success — emerald */
+  --success:        #34d399;
+  --success-bg:     rgba(52, 211, 153, 0.12);
+  --success-border: rgba(52, 211, 153, 0.3);
+
+  /* Error */
+  --error:          #f87171;
+  --error-bg:       rgba(248, 113, 113, 0.12);
+  --error-border:   rgba(248, 113, 113, 0.3);
+
+  /* Warning / Info */
+  --info:           #60a5fa;
+  --info-bg:        rgba(96, 165, 250, 0.12);
+
+  /* Shadows */
+  --shadow-card:    0 24px 64px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-glow:    0 0 40px rgba(124, 111, 255, 0.15);
+  --shadow-btn:     0 4px 20px rgba(124, 111, 255, 0.4);
+
+  /* Radii */
+  --r-sm:  10px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+  --r-full: 9999px;
+
+  /* Typography */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  /* Transitions */
+  --t-fast:   0.15s ease;
+  --t-base:   0.25s ease;
+  --t-slow:   0.4s ease;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
 body {
-  background: #080808;
-  color: #f0f0f0;
-  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 input[type=number] {
-  color: #f0f0f0;
-  background: #1a1a1a;
+  color: var(--text-primary);
+  background: transparent;
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
 }
 
 input::placeholder {
-  color: #555;
+  color: var(--text-muted);
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+button {
+  font-family: var(--font);
+  cursor: pointer;
+}
+
+/* ─── Keyframe Animations ──────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50%       { box-shadow: 0 0 0 8px transparent; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes float-orb-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -40px) scale(1.05); }
+  66%       { transform: translate(-20px, 20px) scale(0.97); }
+}
+
+@keyframes float-orb-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(-40px, 30px) scale(1.08); }
+  66%       { transform: translate(25px, -20px) scale(0.95); }
+}
+
+@keyframes float-orb-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(20px, 35px) scale(1.03); }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(100%) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to   { opacity: 0; transform: translateX(100%) scale(0.95); }
+}
+
+@keyframes cascadeUp {
+  from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes sweepGlow {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  35%, 100% { transform: translateX(250%) skewX(-15deg); }
+}
+
+@keyframes avatarPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(124, 111, 255, 0.2); }
+  50% { box-shadow: 0 0 45px rgba(124, 111, 255, 0.5); }
+}
+
+@keyframes continuousShimmer {
+  to {
+    background-position: var(--bg-size) 0;
+  }
 }

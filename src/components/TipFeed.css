@@ -1,0 +1,125 @@
+.tip-feed {
+  margin-top: 16px;
+}
+
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.feed-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--success);
+  background: var(--success-bg);
+  padding: 4px 8px;
+  border-radius: var(--r-full);
+  letter-spacing: 0.05em;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--success);
+  border-radius: 50%;
+  animation: dot-pulse 2s infinite;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-md);
+  animation: row-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.tip-row:hover {
+  transform: scale(1.02);
+  background: rgba(255,255,255,0.05);
+}
+
+.tip-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tip-from {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: monospace;
+}
+
+.tip-time {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.tip-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--success);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.empty-icon {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+/* Skeleton Loading */
+.skeleton {
+  opacity: 1;
+  animation: none;
+}
+
+.skeleton-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skel-line {
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bg-2) 25%, #2a2a3e 50%, var(--bg-2) 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.w-24 { width: 96px; }
+.w-16 { width: 64px; }
+.subtle { height: 10px; opacity: 0.5; }

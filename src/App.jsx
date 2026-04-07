@@ -1,191 +1,324 @@
-import { useMemo, useState, useEffect } from 'react'
-import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react'
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { WalletModalProvider, useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { clusterApiUrl, Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js'
-import '@solana/wallet-adapter-react-ui/styles.css'
-import { fetchTips } from './helius'
+import React, { useMemo, useState, useEffect } from 'react';
+import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { clusterApiUrl, Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import confetti from 'canvas-confetti';
 
-const RECIPIENT = '4MWFrMMxYyik6uhcqURym8o8fcX71L2rQHA4TQRLfLyB'
+import { fetchTips } from './helius';
 
-const s = {
-  page: { minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: '-apple-system, BlinkMacSystemFont, system-ui, sans-serif' },
-  card: { background: '#161616', border: '1px solid #303030', borderRadius: '24px', padding: '40px 32px', width: '100%', maxWidth: '380px' },
-  initials: { width: '56px', height: '56px', borderRadius: '50%', background: '#222', border: '1px solid #383838', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '600', color: '#ccc', margin: '0 auto 20px', letterSpacing: '0.05em' },
-  name: { textAlign: 'center', fontSize: '22px', fontWeight: '600', color: '#ffffff', marginBottom: '6px', letterSpacing: '-0.02em' },
-  handle: { textAlign: 'center', fontSize: '13px', color: '#666', marginBottom: '10px' },
-  totalWrap: { textAlign: 'center', marginBottom: '32px' },
-  totalNum: { fontSize: '32px', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.04em' },
-  totalLabel: { fontSize: '11px', color: '#555', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: '4px' },
-  label: { fontSize: '11px', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' },
-  amounts: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '24px' },
-  amt: (sel) => ({
-    background: sel ? '#1c1c30' : '#1e1e1e',
-    border: sel ? '1px solid #6666dd' : '1px solid #303030',
-    borderRadius: '12px', padding: '13px 4px', textAlign: 'center',
-    fontSize: '14px', fontWeight: '500',
-    color: sel ? '#aaaaff' : '#ccc',
-    cursor: 'pointer',
-  }),
-  input: { width: '100%', background: '#1e1e1e', border: '1px solid #303030', borderRadius: '12px', padding: '13px 16px', fontSize: '14px', color: '#fff', outline: 'none', marginBottom: '24px', boxSizing: 'border-box' },
-  primaryBtn: { width: '100%', background: '#ffffff', color: '#080808', border: 'none', borderRadius: '12px', padding: '15px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', marginBottom: '10px', letterSpacing: '-0.01em' },
-  ghostBtn: { width: '100%', background: 'transparent', color: '#777', border: '1px solid #2a2a2a', borderRadius: '12px', padding: '12px', fontSize: '13px', cursor: 'pointer', marginBottom: '32px' },
-  divider: { height: '1px', background: '#222', marginBottom: '24px' },
-  feedHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' },
-  feedLabel: { fontSize: '11px', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em' },
-  liveTag: { fontSize: '10px', color: '#4caf7d', border: '1px solid #1e3a2a', borderRadius: '99px', padding: '3px 10px', letterSpacing: '0.05em' },
-  tipRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' },
-  tipLeft: { display: 'flex', flexDirection: 'column', gap: '3px' },
-  tipFrom: { fontSize: '14px', color: '#ccc' },
-  tipTime: { fontSize: '11px', color: '#555' },
-  tipAmt: { fontSize: '15px', color: '#4caf7d', fontWeight: '600' },
-  status: (ok) => ({ textAlign: 'center', fontSize: '13px', color: ok ? '#4caf7d' : '#999', marginBottom: '12px' }),
-  walletRow: { display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '28px', fontSize: '12px', color: '#666', gap: '6px' },
-  dot: { width: '7px', height: '7px', borderRadius: '50%', background: '#4caf7d', flexShrink: 0 },
-  emptyTips: { textAlign: 'center', fontSize: '14px', color: '#555', padding: '24px 0' },
-  loadingTips: { textAlign: 'center', fontSize: '14px', color: '#555', padding: '24px 0' },
-}
+// Styles
+import '@solana/wallet-adapter-react-ui/styles.css';
+import './App.css';
 
-function TipJar() {
-  const { publicKey, sendTransaction, connected, disconnect } = useWallet()
-  const { setVisible } = useWalletModal()
-  const [selected, setSelected] = useState(0.5)
-  const [custom, setCustom] = useState('')
-  const [status, setStatus] = useState('')
-  const [tips, setTips] = useState([])
-  const [loadingTips, setLoadingTips] = useState(true)
-  const [total, setTotal] = useState('0.00')
+// Components
+import WalletButton from './components/WalletButton';
+import TipPresets from './components/TipPresets';
+import SendTipButton from './components/SendTipButton';
+import TipFeed from './components/TipFeed';
+import ShareLink from './components/ShareLink';
+import StatusToast from './components/StatusToast';
+import IntentModal from './components/IntentModal';
+import EditProfileModal from './components/EditProfileModal';
 
-  async function loadTips() {
-    try {
-      const data = await fetchTips(RECIPIENT)
-      setTips(data)
-      const sum = data.reduce((acc, t) => acc + parseFloat(t.amount), 0)
-      setTotal(sum.toFixed(2))
-    } catch (e) {
-      console.error('Failed to load tips', e)
-    } finally {
-      setLoadingTips(false)
+// Base config
+const FALLBACK_RECIPIENT = '4MWFrMMxYyik6uhcqURym8o8fcX71L2rQHA4TQRLfLyB';
+
+function TipJarApp() {
+  const { publicKey, sendTransaction, connected } = useWallet();
+  
+  // App State
+  const [selectedPreset, setSelectedPreset] = useState(0.5);
+  const [customAmount, setCustomAmount] = useState('');
+  
+  const [tips, setTips] = useState([]);
+  const [loadingTips, setLoadingTips] = useState(true);
+  const [totalReceived, setTotalReceived] = useState('0.00');
+  
+  // Transaction State
+  const [isSending, setIsSending] = useState(false);
+  const [toast, setToast] = useState({ status: '', type: '' });
+  
+  // Intent Modal State
+  const [showIntent, setShowIntent] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const displayAmount = customAmount ? parseFloat(customAmount) : selectedPreset;
+
+  // Get dynamic profile data from query params
+  const searchParams = new URLSearchParams(window.location.search);
+  let recipientAddress = searchParams.get('wallet');
+  const urlName = searchParams.get('name');
+  const urlAvatar = searchParams.get('avatar');
+  
+  // Validate recipient address format, otherwise use fallback
+  try {
+    if (recipientAddress) {
+      new PublicKey(recipientAddress);
+    } else {
+      recipientAddress = FALLBACK_RECIPIENT;
     }
+  } catch (error) {
+    recipientAddress = FALLBACK_RECIPIENT;
   }
 
+  // Effect: Load Tips
   useEffect(() => {
-    loadTips()
-    const interval = setInterval(loadTips, 15000)
-    return () => clearInterval(interval)
-  }, [])
+    async function loadTips() {
+      try {
+        const data = await fetchTips(recipientAddress);
+        setTips(data || []);
+        const sum = (data || []).reduce((acc, t) => acc + parseFloat(t.amount), 0);
+        setTotalReceived(sum.toFixed(2));
+      } catch (error) {
+        console.error('Failed to load tips', error);
+      } finally {
+        setLoadingTips(false);
+      }
+    }
+    
+    loadTips();
+    const intervalId = setInterval(loadTips, 15000);
+    return () => clearInterval(intervalId);
+  }, [recipientAddress]);
 
-  async function sendTip() {
-    const amount = custom ? parseFloat(custom) : selected
-    if (!amount || amount <= 0) return setStatus('Enter a valid amount')
+  const initiateTip = () => {
+    if (!displayAmount || displayAmount <= 0) {
+      setToast({ status: 'Please enter a valid amount', type: 'error' });
+      return;
+    }
+    
+    if (!connected || !publicKey) {
+      setToast({ status: 'Please connect your wallet first', type: 'info' });
+      return;
+    }
+
+    setShowIntent(true);
+  };
+
+  // Execute Tip
+  const executeTip = async () => {
+    setShowIntent(false);
+
     try {
-      setStatus('Sending...')
-      const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
+      setIsSending(true);
+      const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
       const tx = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey,
-          toPubkey: new PublicKey(RECIPIENT),
-          lamports: Math.round(amount * LAMPORTS_PER_SOL),
+          toPubkey: new PublicKey(recipientAddress),
+          lamports: Math.round(displayAmount * LAMPORTS_PER_SOL),
         })
-      )
-      const sig = await sendTransaction(tx, connection)
-      await connection.confirmTransaction(sig, 'confirmed')
-      setStatus('Tip sent!')
-      setCustom('')
-      setTimeout(loadTips, 3000)
+      );
+      
+      const signature = await sendTransaction(tx, connection);
+      await connection.confirmTransaction(signature, 'confirmed');
+      
+      // Success Path
+      setToast({ status: `Successfully tipped ${displayAmount} SOL!`, type: 'success' });
+      setCustomAmount('');
+      
+      // Trigger Confetti
+      triggerConfetti();
+      
+      // Reload feed fast
+      setTimeout(() => {
+        setLoadingTips(true);
+        fetchTips(recipientAddress).then(data => {
+          setTips(data || []);
+          const sum = (data || []).reduce((acc, t) => acc + parseFloat(t.amount), 0);
+          setTotalReceived(sum.toFixed(2));
+          setLoadingTips(false);
+        });
+      }, 2000);
+
     } catch (e) {
-      setStatus('Failed — ' + e.message)
+      console.error(e);
+      setToast({ status: 'Transaction failed or rejected', type: 'error' });
+    } finally {
+      setIsSending(false);
     }
-  }
+  };
+
+  const triggerConfetti = () => {
+    const duration = 4500;
+    const end = Date.now() + duration;
+    // Cyberpunk/Solana rich gradient colors
+    const colors = ['#7c6fff', '#34d399', '#ffffff', '#f472b6', '#fbbf24', '#00f0ff'];
+
+    // Phase 1: Massive high-velocity blast from bottom
+    confetti({
+      particleCount: 200,
+      spread: 160,
+      origin: { y: 0.95 },
+      colors: colors,
+      startVelocity: 65,
+      gravity: 0.8,
+      ticks: 350,
+      zIndex: 3000
+    });
+
+    // Phase 2: Distinct mid-air fireworks bursts
+    const firework = (x, y) => {
+      confetti({
+        particleCount: 60,
+        spread: 90,
+        origin: { x, y },
+        colors: colors,
+        startVelocity: 35,
+        zIndex: 3000
+      });
+    };
+    
+    // Sequence the fireworks across the screen
+    setTimeout(() => firework(0.2, 0.4), 300);
+    setTimeout(() => firework(0.8, 0.3), 700);
+    setTimeout(() => firework(0.5, 0.2), 1100);
+
+    // Phase 3: Continuous elegant drifting snow/stars from the top
+    const frame = () => {
+      confetti({
+        particleCount: 2,
+        angle: 90,
+        spread: 60,
+        origin: { x: Math.random(), y: -0.1 },
+        colors: colors,
+        startVelocity: 15,
+        gravity: 0.4, // floaty
+        scalar: Math.random() * 1.5 + 0.5, // mixed sizes
+        ticks: 300,
+        zIndex: 2999
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+    frame();
+  };
+
+  const currentName = urlName ? urlName : (recipientAddress === FALLBACK_RECIPIENT ? 'Gopal Srivastav' : 'Web3 Creator');
 
   return (
-    <div style={s.page}>
-      <div style={s.card}>
-
-        <div style={s.initials}>GS</div>
-        <div style={s.name}>Gopal Srivastav</div>
-        <div style={s.handle}>4MWF...fLyB</div>
-
-        <div style={s.totalWrap}>
-          <div style={s.totalNum}>{total} SOL</div>
-          <div style={s.totalLabel}>total received</div>
-        </div>
-
-        {connected && (
-          <div style={s.walletRow}>
-            <div style={s.dot} />
-            {publicKey.toString().slice(0, 6)}...{publicKey.toString().slice(-4)}
-          </div>
-        )}
-
-        <div style={s.label}>Amount</div>
-        <div style={s.amounts}>
-          {[0.1, 0.5, 1].map(a => (
-            <div key={a} style={s.amt(selected === a && !custom)}
-              onClick={() => { setSelected(a); setCustom('') }}>
-              {a} SOL
-            </div>
-          ))}
-        </div>
-
-        <div style={s.label}>Custom amount</div>
-        <input style={s.input} type="number" placeholder="0.00 SOL"
-          value={custom} onChange={e => setCustom(e.target.value)} />
-
-        {status && <div style={s.status(status === 'Tip sent!')}>{status}</div>}
-
-        {connected ? (
-          <>
-            <button style={s.primaryBtn} onClick={sendTip}>Send tip</button>
-            <button style={s.ghostBtn} onClick={disconnect}>Disconnect wallet</button>
-          </>
-        ) : (
-          <button style={s.primaryBtn} onClick={() => setVisible(true)}>Connect wallet</button>
-        )}
-
-        <div style={s.divider} />
-
-        <div style={s.feedHeader}>
-          <div style={s.feedLabel}>Recent tips</div>
-          <div style={s.liveTag}>live</div>
-        </div>
-
-        {loadingTips ? (
-          <div style={s.loadingTips}>Loading...</div>
-        ) : tips.length === 0 ? (
-          <div style={s.emptyTips}>No tips yet — be the first</div>
-        ) : (
-          tips.slice(0, 5).map((t, i) => (
-            <div key={i} style={s.tipRow}>
-              <div style={s.tipLeft}>
-                <span style={s.tipFrom}>{t.from}</span>
-                <span style={s.tipTime}>{t.time}</span>
-              </div>
-              <span style={s.tipAmt}>+{t.amount} SOL</span>
-            </div>
-          ))
-        )}
-
+    <div className="app-container">
+      {/* Background visual effects */}
+      <div className="background-orbs">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="orb orb-3"></div>
       </div>
+
+      <main className="tip-card">
+        {/* Profile Header */}
+        <div className="profile-section" aria-live="polite" style={{ position: 'relative' }}>
+          <button 
+            onClick={() => setShowEditProfile(true)}
+            style={{ position: 'absolute', right: 0, top: 0, zIndex: 10, background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '8px', transition: 'color 0.2s' }}
+            title="Edit Profile Settings"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+          </button>
+          
+          <div className="avatar-initials" aria-hidden="true">
+            {urlAvatar ? urlAvatar : (recipientAddress === FALLBACK_RECIPIENT ? 'GS' : '👾')}
+          </div>
+          <h1 className="recipient-name">
+            {currentName}
+          </h1>
+          <div className="section-label" style={{marginBottom: 0, marginTop: '8px'}} aria-label="Recipient Wallet Address">
+            Tipping to: {recipientAddress.slice(0,4)}...{recipientAddress.slice(-4)}
+          </div>
+        </div>
+
+        {/* Share Link */}
+        <ShareLink address={recipientAddress} />
+
+        <div className="divider"></div>
+
+        {/* Amount Selection */}
+        <div className="section-label">Select Amount</div>
+        <TipPresets 
+          selected={selectedPreset}
+          onSelect={setSelectedPreset}
+          customAmount={customAmount}
+          onCustomChange={setCustomAmount}
+        />
+
+        {/* CTA Button */}
+        <div className="send-btn-wrapper">
+          <SendTipButton 
+            onSend={initiateTip}
+            isSending={isSending}
+            disabled={!connected}
+          />
+        </div>
+
+        {/* Connect Wallet */}
+        <div className="connect-wrapper">
+          <WalletButton />
+        </div>
+
+        <div className="divider"></div>
+
+        {/* Live Feed */}
+        <TipFeed tips={tips} loading={loadingTips} />
+
+      </main>
+
+      {/* Intent Confirmation Modal */}
+      {showIntent && (
+        <IntentModal 
+          amount={displayAmount}
+          recipientName={currentName}
+          recipientAddress={recipientAddress}
+          onConfirm={executeTip}
+          onCancel={() => setShowIntent(false)}
+        />
+      )}
+
+      {/* Edit Profile Modal */}
+      {showEditProfile && (
+        <EditProfileModal
+          currentName={currentName}
+          currentAvatar={urlAvatar || (recipientAddress === FALLBACK_RECIPIENT ? 'GS' : '👾')}
+          currentWallet={recipientAddress}
+          onClose={() => setShowEditProfile(false)}
+        />
+      )}
+
+      {/* Floating Status Notification */}
+      <StatusToast 
+        status={toast.status} 
+        type={toast.type} 
+        onClose={() => setToast({ status: '', type: '' })}
+      />
     </div>
-  )
+  );
 }
 
+// App Wrapper with Context Providers
 function App() {
-  const network = WalletAdapterNetwork.Devnet
-  const endpoint = useMemo(() => clusterApiUrl(network), [network])
-  const wallets = useMemo(() => [new PhantomWalletAdapter()], [network])
+  const network = WalletAdapterNetwork.Devnet;
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+
+  // Multiple Wallets!
+  const wallets = useMemo(() => [
+    new PhantomWalletAdapter({ network }),
+    new SolflareWalletAdapter({ network })
+  ], [network]);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <TipJar />
+          <TipJarApp />
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
-  )
+  );
 }
 
-export default App
+export default App;
